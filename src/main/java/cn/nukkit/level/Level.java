@@ -3989,22 +3989,32 @@ public class Level implements Metadatable {
             return;
         }
 
-        long index = Level.chunkHash(x, z);
-        if (this.chunkGenerationQueue.putIfAbsent(index, Boolean.TRUE) == null) {
-            final IChunk chunk = this.getChunk(x, z, true);
-            this.generator.asyncGenerate(chunk, (c) -> chunkGenerationQueue.remove(c.getChunk().getIndex()));//async
+        long index = chunkHash(x, z);
+
+        // Prevent duplicate generation
+        if (this.chunkGenerationQueue.putIfAbsent(index, Boolean.TRUE) != null) {
+            return;
+        }
+
+        IChunk chunk = this.getChunk(x, z, true); // assumed non-blocking
+
+        try {
+            this.generator.asyncGenerate(chunk, (completedChunk) -> {
+                try {
+                    // Add post-processing if needed
+                } catch (Exception e) {
+                    log.error("Post-processing async chunk failed at ({}, {}): {}", x, z, e.getMessage(), e);
+                } finally {
+                    this.chunkGenerationQueue.remove(completedChunk.getChunk().getIndex());
+                }
+            });
+        } catch (Exception e) {
+            log.error("Async chunk generation failed at ({}, {}): {}", x, z, e.getMessage(), e);
+            this.chunkGenerationQueue.remove(index);
         }
     }
 
 
-    /**
-     *
-     * <p>
-     * Sync generate chunk
-     *
-     * @param x the x
-     * @param z the z
-     */
     public void syncGenerateChunk(int x, int z) {
         long index = Level.chunkHash(x, z);
         if (this.chunkGenerationQueue.putIfAbsent(index, Boolean.TRUE) == null) {
