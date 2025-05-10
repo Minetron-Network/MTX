@@ -81,6 +81,7 @@ public class ModalForm extends Form<ModalResponse> {
     public ModalForm onSubmit(BiConsumer<Player, ModalResponse> submitted) {
         return (ModalForm) super.onSubmit(submitted);
     }
+
     @Override
     public ModalForm onClose(Consumer<Player> callback) {
         return (ModalForm) super.onClose(callback);

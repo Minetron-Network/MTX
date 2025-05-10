@@ -5,6 +5,7 @@ import cn.nukkit.Server;
 import cn.nukkit.block.BlockID;
 import cn.nukkit.entity.EntityIntelligent;
 import cn.nukkit.entity.ai.memory.CoreMemoryTypes;
+import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.format.IChunk;
 import cn.nukkit.math.Vector3;
@@ -77,6 +78,11 @@ public abstract class EntityAnimal extends EntityIntelligent {
     @Override
     public Integer getExperienceDrops() {
         return ThreadLocalRandom.current().nextInt(3) + 1;
+    }
+
+    @Override
+    public boolean attack(EntityDamageEvent source) {
+        return !source.isCancelled();
     }
 
 }

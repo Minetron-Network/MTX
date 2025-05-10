@@ -1521,6 +1521,7 @@ public class Level implements Metadatable {
     }
 
     public boolean save(boolean force) {
+
         if (!this.getAutoSave() && !force) {
             return false;
         }
