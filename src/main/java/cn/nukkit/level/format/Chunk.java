@@ -34,6 +34,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.StampedLock;
@@ -665,22 +667,6 @@ public class Chunk implements IChunk {
                 }
                 this.blockEntityNBT = null;
             }
-            if(isGenerated())
-            for (int x = 0; x < 16; x++) {
-                for (int y = getDimensionData().getMinHeight(); y < getDimensionData().getMaxHeight(); y++) {
-                    for (int z = 0; z < 16; z++) {
-                        Vector3 pos = new Vector3(x * this.getX(), y, z * this.getZ());
-                        Block block = this.getLevel().getBlock(pos);
-                        if (block instanceof RedstoneComponent) {
-                            if (block.isPowerSource() || block.isGettingPower()) {
-                                block.onUpdate(Level.BLOCK_UPDATE_NORMAL);
-                            }
-                        } else if (block instanceof BlockLiquid) {
-                            block.onUpdate(Level.BLOCK_UPDATE_NORMAL);
-                        }
-                    }
-                }
-            }
             if (changed) {
                 this.setChanged();
             }
@@ -866,6 +852,11 @@ public class Chunk implements IChunk {
         public Builder levelProvider(LevelProvider levelProvider) {
             this.levelProvider = levelProvider;
             return this;
+        }
+
+        @Override
+        public LevelProvider getLevelProvider() {
+            return levelProvider;
         }
 
         @Override
