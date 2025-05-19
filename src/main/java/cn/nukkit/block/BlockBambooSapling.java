@@ -59,7 +59,7 @@ public class BlockBambooSapling extends BlockSapling {
             return type;
         } else if (type == Level.BLOCK_UPDATE_RANDOM) {
             Block up = up();
-            if (!isAge() && up.isAir() && level.getFullLight(up) >= BlockCrops.MINIMUM_LIGHT_LEVEL && ThreadLocalRandom.current().nextInt(3) == 0) {
+            if (!isAge() && up.isAir() && ThreadLocalRandom.current().nextInt(3) == 0) {
                 BlockBamboo newState = new BlockBamboo();
                 newState.setBambooLeafSize(BambooLeafSize.SMALL_LEAVES);
                 BlockGrowEvent blockGrowEvent = new BlockGrowEvent(up, newState);

@@ -54,7 +54,6 @@ import cn.nukkit.event.player.PlayerInteractEvent.Action;
 import cn.nukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import cn.nukkit.event.server.DataPacketSendEvent;
 import cn.nukkit.form.window.Form;
-import cn.nukkit.inventory.BundleInventory;
 import cn.nukkit.inventory.CraftTypeInventory;
 import cn.nukkit.inventory.CraftingGridInventory;
 import cn.nukkit.inventory.CreativeOutputInventory;
@@ -63,7 +62,6 @@ import cn.nukkit.inventory.Inventory;
 import cn.nukkit.inventory.PlayerCursorInventory;
 import cn.nukkit.inventory.SpecialWindowId;
 import cn.nukkit.inventory.fake.FakeInventory;
-import cn.nukkit.item.INBT;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemArmor;
 import cn.nukkit.item.ItemArrow;
@@ -193,6 +191,7 @@ public class Player extends EntityHuman implements CommandSender, ChunkLoader, I
     public static final int PERMISSION_OPERATOR = 2;
     public static final int PERMISSION_MEMBER = 1;
     public static final int PERMISSION_VISITOR = 0;
+
     /// static fields
     public boolean playedBefore;
     public boolean spawned = false;
@@ -4317,6 +4316,7 @@ public class Player extends EntityHuman implements CommandSender, ChunkLoader, I
 
         if (switchLevel) {
             refreshChunkRender();
+            this.refreshBlockEntity(this.chunk);
         }
         this.resetFallDistance();
         //DummyBossBar
@@ -5519,6 +5519,43 @@ public class Player extends EntityHuman implements CommandSender, ChunkLoader, I
      */
     public void setFogStack(List<PlayerFogPacket.Fog> fogStack) {
         this.fogStack = fogStack;
+    }
+
+
+    public void refreshBlockEntity(@Nullable IChunk chunk) {
+        Collection<BlockEntity> blockEntities;
+        if (chunk == null) {
+            blockEntities = this.level.getBlockEntities().values();
+        } else {
+            blockEntities = chunk.getBlockEntities().values();
+        }
+
+        getServer().getScheduler().scheduleDelayedTask(
+                InternalPlugin.INSTANCE, () -> {
+                    for (var blockEntity : blockEntities) {
+                        if (blockEntity == null) continue;
+
+                        if (blockEntity instanceof BlockEntitySpawnable blockEntitySpawnable) {
+                            UpdateBlockPacket setAir = new UpdateBlockPacket();
+                            setAir.blockRuntimeId = BlockAir.STATE.blockStateHash();
+                            setAir.flags = UpdateBlockPacket.FLAG_NETWORK;
+                            setAir.x = blockEntity.getFloorX();
+                            setAir.y = blockEntity.getFloorY();
+                            setAir.z = blockEntity.getFloorZ();
+                            this.dataPacket(setAir);
+
+                            UpdateBlockPacket revertAir = new UpdateBlockPacket();
+                            revertAir.blockRuntimeId = blockEntity.getBlock().getRuntimeId();
+                            revertAir.flags = UpdateBlockPacket.FLAG_NETWORK;
+                            revertAir.x = blockEntity.getFloorX();
+                            revertAir.y = blockEntity.getFloorY();
+                            revertAir.z = blockEntity.getFloorZ();
+                            this.dataPacket(revertAir);
+
+                            blockEntitySpawnable.spawnTo(this);
+                        }
+                    }
+                }, 40, true);
     }
 
     /**

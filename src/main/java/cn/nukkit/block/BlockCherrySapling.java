@@ -54,7 +54,7 @@ public class BlockCherrySapling extends BlockSapling implements BlockFlowerPot.F
                 return Level.BLOCK_UPDATE_NORMAL;
             }
         } else if (type == Level.BLOCK_UPDATE_RANDOM) { //Growth
-            if (getLevel().getFullLight(add(0, 1, 0)) >= BlockCrops.MINIMUM_LIGHT_LEVEL) {
+
                 if (isAged()) {
                     this.grow();
                 } else {
@@ -62,9 +62,6 @@ public class BlockCherrySapling extends BlockSapling implements BlockFlowerPot.F
                     this.getLevel().setBlock(this, this, true);
                     return Level.BLOCK_UPDATE_RANDOM;
                 }
-            } else {
-                return Level.BLOCK_UPDATE_RANDOM;
-            }
         }
         return Level.BLOCK_UPDATE_NORMAL;
     }

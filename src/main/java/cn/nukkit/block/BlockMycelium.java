@@ -65,7 +65,6 @@ public class BlockMycelium extends BlockDirt {
     @Override
     public int onUpdate(int type) {
         if (type == Level.BLOCK_UPDATE_RANDOM) {
-            if (getLevel().getFullLight(add(0, 1, 0)) >= BlockCrops.MINIMUM_LIGHT_LEVEL) {
                 //TODO: light levels
                 NukkitRandom random = new NukkitRandom();
                 x = random.nextInt((int) x - 1, (int) x + 1);
@@ -81,7 +80,7 @@ public class BlockMycelium extends BlockDirt {
                         }
                     }
                 }
-            }
+
         }
         return 0;
     }

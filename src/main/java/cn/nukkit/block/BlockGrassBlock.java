@@ -96,8 +96,7 @@ public class BlockGrassBlock extends BlockDirt {
             // For a dirt block to accept grass from a nearby grass block, the following requirements must be met:
 
             // The source block must have a light level of 9 or brighter directly above it.
-            if (getLevel().getFullLight(add(0, 1, 0)) >= BlockCrops.MINIMUM_LIGHT_LEVEL) {
-
+            
                 // The dirt block receiving grass must be within a 3×5×3 range of the source block
                 // where the source block is in the center of the second topmost layer of that range.
                 ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -117,7 +116,7 @@ public class BlockGrassBlock extends BlockDirt {
                         this.getLevel().setBlock(block, ev.getNewState());
                     }
                 }
-            }
+
             return type;
         }
         return 0;
