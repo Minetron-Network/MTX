@@ -74,7 +74,7 @@ public class BlockEntityHopper extends BlockEntitySpawnable implements BlockEnti
         if (this.namedTag.contains("TransferCooldown")) {
             this.transferCooldown = this.namedTag.getInt("TransferCooldown");
         } else {
-            this.transferCooldown = 8;
+            this.transferCooldown = 4;
         }
 
         this.inventory = new HopperInventory(this);
@@ -106,7 +106,7 @@ public class BlockEntityHopper extends BlockEntitySpawnable implements BlockEnti
      * @return How much ticks does it take for the hopper to transfer an item
      */
     public int getCooldownTick() {
-        return 8;
+        return 4;
     }
 
     protected boolean checkBlockStateValid(@NotNull BlockState levelBlockState) {
@@ -226,7 +226,7 @@ public class BlockEntityHopper extends BlockEntitySpawnable implements BlockEnti
             return false;
         }
 
-        Block blockSide = this.getSide(BlockFace.UP).getLevelBlock();
+        Block blockSide = this.getSide(BlockFace.UP).getTickCachedLevelBlock();
         BlockEntity blockEntity = this.level.getBlockEntity(temporalVector.setComponentsAdding(this, BlockFace.UP));
 
         if (this.getLocation().getLevel() == null) return true;

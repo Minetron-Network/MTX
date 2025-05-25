@@ -103,7 +103,6 @@ public class BlockMobSpawner extends BlockSolid {
         return true;
     }
 
-    @Override
     public boolean onActivate(@NotNull Item item, @Nullable Player player, BlockFace blockFace, float fx, float fy, float fz) {
         if(!(item instanceof ItemSpawnEgg egg)) return false;
         if(player == null) return false;
@@ -116,4 +115,5 @@ public class BlockMobSpawner extends BlockSolid {
         }
         return false;
     }
+
 }

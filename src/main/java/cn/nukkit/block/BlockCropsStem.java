@@ -5,6 +5,9 @@ import cn.nukkit.block.property.CommonBlockProperties;
 import cn.nukkit.event.block.BlockGrowEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.Sound;
+import cn.nukkit.level.particle.GenericParticle;
+import cn.nukkit.level.particle.Particle;
 import cn.nukkit.math.BlockFace;
 import cn.nukkit.math.NukkitMath;
 import cn.nukkit.utils.Faceable;
@@ -118,15 +121,45 @@ public abstract class BlockCropsStem extends BlockCrops implements Faceable {
         BlockFace sideFace = BlockFace.Plane.HORIZONTAL.random();
         Block side = this.getSide(sideFace);
         Block d = side.down();
-        if (side.isAir() && (d.getId().equals(FARMLAND) || d.getId().equals(GRASS_BLOCK) || d.getId().equals(DIRT))) {
-            BlockGrowEvent ev = new BlockGrowEvent(side, Block.get(fruitId));
-            Server.getInstance().getPluginManager().callEvent(ev);
-            if (!ev.isCancelled()) {
-                this.getLevel().setBlock(side, ev.getNewState(), true);
-                setBlockFace(sideFace);
-                this.getLevel().setBlock(this, this, true);
+
+        if (side.isAir()){
+
+            if (d.getId().equals(AIR)){
+                var event = new BlockGrowEvent(side, Block.get(fruitId));
+                Server.getInstance().getPluginManager().callEvent(event);
+                if (!event.isCancelled()) {
+                    this.getLevel().dropItem(side.getPosition(), Item.get(fruitId));
+
+                    this.getLevel().addParticle(
+                            new GenericParticle(
+                                    side.getPosition().add(0.5, 0.5, 0.5),
+                                    Particle.TYPE_VILLAGER_HAPPY
+                            )
+                    );
+
+                    this.getLevel().addSound(side.getPosition(), Sound.MOB_SLIME_JUMP);
+
+                }
+            } else if (d.getId().equals(FARMLAND) || d.getId().equals(GRASS_BLOCK) || d.getId().equals(DIRT)) {
+                BlockGrowEvent ev = new BlockGrowEvent(side, Block.get(fruitId));
+                Server.getInstance().getPluginManager().callEvent(ev);
+                if (!ev.isCancelled()) {
+                    this.getLevel().setBlock(side, ev.getNewState(), true);
+                    setBlockFace(sideFace);
+                    this.getLevel().setBlock(this, this, true);
+
+                    this.getLevel().addParticle(
+                            new GenericParticle(
+                                    side.getPosition().add(0.5, 0.5, 0.5),
+                                    Particle.TYPE_VILLAGER_HAPPY
+                            )
+                    );
+
+
+                }
             }
         }
+
         return true;
     }
 

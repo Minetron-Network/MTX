@@ -4316,7 +4316,10 @@ public class Player extends EntityHuman implements CommandSender, ChunkLoader, I
 
         if (switchLevel) {
             refreshChunkRender();
-            this.refreshBlockEntity(this.chunk);
+
+            if (!(level.getFolderName().equals("nether") || level.getFolderName().equals("end"))){
+                this.refreshBlockEntity(this.chunk);
+            }
         }
         this.resetFallDistance();
         //DummyBossBar

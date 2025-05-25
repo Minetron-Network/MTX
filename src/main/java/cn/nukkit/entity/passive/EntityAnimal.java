@@ -80,9 +80,4 @@ public abstract class EntityAnimal extends EntityIntelligent {
         return ThreadLocalRandom.current().nextInt(3) + 1;
     }
 
-    @Override
-    public boolean attack(EntityDamageEvent source) {
-        return !source.isCancelled();
-    }
-
 }

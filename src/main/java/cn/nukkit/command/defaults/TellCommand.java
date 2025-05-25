@@ -30,7 +30,7 @@ public class TellCommand extends VanillaCommand {
         this.enableParamTree();
     }
 
-    @Override
+    /*@Override
     public int execute(CommandSender sender, String commandLabel, Map.Entry<String, ParamList> result, CommandLogger log) {
         var list = result.getValue();
         List<Player> players = list.getResult(0);
@@ -51,4 +51,6 @@ public class TellCommand extends VanillaCommand {
         log.output();
         return 1;
     }
+
+     */
 }

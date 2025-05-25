@@ -3525,7 +3525,11 @@ public class Level implements Metadatable {
                             pk.subChunkCount = pair.right();
                             pk.data = pair.left();
                             player.sendChunk(x, z, pk);
-                            player.refreshBlockEntity(chunk);
+
+                            if (!(player.getLevel().getFolderName().equals("nether") || player.getLevel().getFolderName().equals("end") )) {
+                                player.refreshBlockEntity(chunk);
+                            }
+
                         }
                     }
                     this.chunkSendQueue.remove(index);

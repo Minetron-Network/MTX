@@ -71,6 +71,7 @@ import static org.objectweb.asm.Opcodes.V17;
 public abstract class Enchantment implements Cloneable {
     public static final Enchantment[] EMPTY_ARRAY = new Enchantment[0];
     public static final int CUSTOM_ENCHANTMENT_ID = dynamic(256);
+
     protected static Enchantment[] enchantments;
     protected static Map<Identifier, Enchantment> namedEnchantments = new Object2ObjectLinkedOpenHashMap<>();
 

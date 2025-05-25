@@ -2134,7 +2134,6 @@ public abstract class Entity extends Location implements Metadatable, EntityID, 
         return false;
     }
 
-
     public <T extends Block> boolean collideWithBlock(Class<T> classType) {
         for (Block block : this.getCollisionBlocks()) {
             if (classType.isInstance(block)) {

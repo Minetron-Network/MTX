@@ -1,1 +1,1 @@
-rootProject.name = "mtx"
+rootProject.name = "MTX"

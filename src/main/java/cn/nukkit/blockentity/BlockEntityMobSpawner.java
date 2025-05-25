@@ -50,7 +50,7 @@ public class BlockEntityMobSpawner extends BlockEntitySpawnable {
 
     public static final int SPAWN_RANGE = 4;
     public static final int MINIMUM_SPAWN_COUNT = 1;
-    public static final int MAXIMUM_SPAWN_COUNT = 4;
+    public static final int MAXIMUM_SPAWN_COUNT = 2;
     public static final int MIN_SPAWN_DELAY = 200;
     public static final int MAX_SPAWN_DELAY = 5000;
     public static final int MAX_NEARBY_ENTITIES = 8;

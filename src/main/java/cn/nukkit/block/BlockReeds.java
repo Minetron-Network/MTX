@@ -109,7 +109,8 @@ public class BlockReeds extends BlockFlowable {
         }
 
         if (type == Level.BLOCK_UPDATE_SCHEDULED) {
-            if (!isSupportValid()) {
+            Block up = up();
+            if (!isSupportValid() || !canGrowInto(up)) {
                 level.useBreakOn(this);
             }
             return type;
@@ -125,8 +126,10 @@ public class BlockReeds extends BlockFlowable {
                 level.setBlock(this, this, false);
                 return type;
             }
+
             Block up = up();
-            if (!up.isAir()) {
+            if (!canGrowInto(up)) {
+                level.scheduleUpdate(this, 0);
                 return type;
             }
 
@@ -154,6 +157,10 @@ public class BlockReeds extends BlockFlowable {
             return type;
         }
         return 0;
+    }
+
+    private boolean canGrowInto(Block block) {
+        return block.isAir() || block.canBeFlowedInto();
     }
 
     @Override
