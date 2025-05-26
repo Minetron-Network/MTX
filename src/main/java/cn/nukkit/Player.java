@@ -2212,6 +2212,7 @@ public class Player extends EntityHuman implements CommandSender, ChunkLoader, I
     }
 
     public void sendChunk(int x, int z, DataPacket packet) {
+
         if (!this.isConnected()) {
             return;
         }
