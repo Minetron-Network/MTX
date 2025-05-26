@@ -12,6 +12,7 @@ import java.util.StringJoiner;
 @Data
 @Accessors(chain = true, fluent = true)
 public class BedrockPong {
+
     private RakServerChannel channel;
     private String edition;
     private String motd;

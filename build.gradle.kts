@@ -15,7 +15,7 @@ plugins {
 
 group = "org.powernukkitx"
 version = "2.0.0"
-description = "MTX Server"
+description = "MTX"
 java.sourceCompatibility = JavaVersion.VERSION_21
 
 repositories {
@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.bundles.terminal)
     implementation(libs.graalvm.polyglot)
     implementation(libs.okaeri)
+    implementation(libs.bedrock.connection)
     runtimeOnly(libs.bundles.graalvm.runtime)
 
     testImplementation(libs.bundles.test)

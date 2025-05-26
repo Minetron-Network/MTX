@@ -40,6 +40,7 @@ commons-rng = "1.5"
 com-github-stateless4j = "2.6.0"
 eu-okaeri-core = "c995d17b6e"
 disruptor = "4.0.0"
+org-cloudburstmc-protocol-bedrock-connection = "3.0.0.Beta6-SNAPSHOT"
 
 [libraries]
 libdeflate = { module = "cn.powernukkitx:libdeflate-java", version.ref = "cn-powernukkitx-libdeflate-java" }
@@ -86,6 +87,7 @@ snappy = { module = "org.xerial.snappy:snappy-java", version.ref = "org-xerial-s
 rng-simple = { module = "org.apache.commons:commons-rng-simple", version.ref = "commons-rng" }
 rng-sampling = { module = "org.apache.commons:commons-rng-sampling", version.ref = "commons-rng" }
 okaeri = { module = "com.github.PowerNukkitX:okaeri-configs", version.ref = "eu-okaeri-core" }
+bedrock-connection = { module = "org.cloudburstmc.protocol:bedrock-connection", version.ref = "org-cloudburstmc-protocol-bedrock-connection" }
 
 [bundles]
 netty = ["netty-raknet", "netty-epoll", "netty-kqueue"]
