@@ -692,8 +692,8 @@ public class LevelDBProvider implements LevelProvider {
     }
 
     private static CompoundTag createWorldDataNBT(LevelDat worldData) {
-        CompoundTag levelDat = new CompoundTag();
 
+        CompoundTag levelDat = new CompoundTag();
         levelDat.putString("BiomeOverride", worldData.getBiomeOverride());
         levelDat.putBoolean("CenterMapsToOrigin", worldData.isCenterMapsToOrigin());
         levelDat.putBoolean("ConfirmedPlatformLockedContent", worldData.isConfirmedPlatformLockedContent());

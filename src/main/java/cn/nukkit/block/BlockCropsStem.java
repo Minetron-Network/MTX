@@ -2,6 +2,7 @@ package cn.nukkit.block;
 
 import cn.nukkit.Server;
 import cn.nukkit.block.property.CommonBlockProperties;
+import cn.nukkit.entity.item.EntityItem;
 import cn.nukkit.event.block.BlockGrowEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
@@ -10,6 +11,7 @@ import cn.nukkit.level.particle.GenericParticle;
 import cn.nukkit.level.particle.Particle;
 import cn.nukkit.math.BlockFace;
 import cn.nukkit.math.NukkitMath;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.utils.Faceable;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -108,7 +110,6 @@ public abstract class BlockCropsStem extends BlockCrops implements Faceable {
         growFruit();
         return Level.BLOCK_UPDATE_RANDOM;
     }
-
     public boolean growFruit() {
         String fruitId = getFruitId();
         for (BlockFace face : BlockFace.Plane.HORIZONTAL) {
@@ -117,18 +118,21 @@ public abstract class BlockCropsStem extends BlockCrops implements Faceable {
                 return false;
             }
         }
-        
+
         BlockFace sideFace = BlockFace.Plane.HORIZONTAL.random();
         Block side = this.getSide(sideFace);
         Block d = side.down();
 
-        if (side.isAir()){
-
-            if (d.getId().equals(AIR)){
+        if (side.isAir()) {
+            if (d.getId().equals(AIR)) {
                 var event = new BlockGrowEvent(side, Block.get(fruitId));
                 Server.getInstance().getPluginManager().callEvent(event);
+
                 if (!event.isCancelled()) {
-                    this.getLevel().dropItem(side.getPosition(), Item.get(fruitId));
+
+                    var centerPos = side.getPosition().add(0.5, 0.5, 0.5);
+
+                    this.getLevel().dropItemWithoutMotion(centerPos, Item.get(fruitId));
 
                     this.getLevel().addParticle(
                             new GenericParticle(
@@ -136,10 +140,9 @@ public abstract class BlockCropsStem extends BlockCrops implements Faceable {
                                     Particle.TYPE_VILLAGER_HAPPY
                             )
                     );
-
                     this.getLevel().addSound(side.getPosition(), Sound.MOB_SLIME_JUMP);
-
                 }
+                return true;
             } else if (d.getId().equals(FARMLAND) || d.getId().equals(GRASS_BLOCK) || d.getId().equals(DIRT)) {
                 BlockGrowEvent ev = new BlockGrowEvent(side, Block.get(fruitId));
                 Server.getInstance().getPluginManager().callEvent(ev);
@@ -154,13 +157,11 @@ public abstract class BlockCropsStem extends BlockCrops implements Faceable {
                                     Particle.TYPE_VILLAGER_HAPPY
                             )
                     );
-
-
                 }
+                return true;
             }
         }
-
-        return true;
+        return false;
     }
 
     @Override

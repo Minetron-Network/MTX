@@ -110,8 +110,8 @@ public class BlockReeds extends BlockFlowable {
 
         if (type == Level.BLOCK_UPDATE_SCHEDULED) {
             Block up = up();
-            if (!isSupportValid() || !canGrowInto(up)) {
-                level.useBreakOn(this);
+            if (!isSupportValid() || !canGrowInto(up) || up.getId().equals(BlockID.FENCE_GATE)) {
+                level.useBreakOn(this); // Kırıl
             }
             return type;
         }
@@ -158,11 +158,13 @@ public class BlockReeds extends BlockFlowable {
         }
         return 0;
     }
-
     private boolean canGrowInto(Block block) {
+
+        if (block.getId().equals(BlockID.FENCE_GATE)) {
+            return false;
+        }
         return block.isAir() || block.canBeFlowedInto();
     }
-
     @Override
     public boolean place(@NotNull Item item, @NotNull Block block, @NotNull Block target, @NotNull BlockFace face, double fx, double fy, double fz, Player player) {
         if (!block.isAir()) {

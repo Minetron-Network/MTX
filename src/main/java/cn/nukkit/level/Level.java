@@ -605,7 +605,8 @@ public class Level implements Metadatable {
     public void close() {
         if(getServer().getSettings().levelSettings().levelThread() && baseTickThread.isAlive()) {
             this.baseTickGameLoop.stop();
-        } else remove();
+            remove();
+        }
     }
 
     private void remove() {
@@ -827,6 +828,7 @@ public class Level implements Metadatable {
     }
 
     public boolean unload(boolean force) {
+
         LevelUnloadEvent ev = new LevelUnloadEvent(this);
 
         if (this == this.server.getDefaultLevel() && !force) {
@@ -2464,6 +2466,29 @@ public class Level implements Metadatable {
         return this.dropAndGetItem(source, item, null);
     }
 
+    public void dropItemWithoutMotion(Vector3 pos, Item item) {
+        if (item.isNull()) return;
+
+        CompoundTag nbt = Entity.getDefaultNBT(
+                        pos,
+                        Vector3.ZERO,
+                        new Random().nextFloat() * 360,
+                        0 // pitch
+                ).putShort("Health", 5)
+                .putCompound("Item", NBTIO.putItemHelper(item))
+                .putShort("PickupDelay", 10);
+
+        EntityItem itemEntity = (EntityItem) Entity.createEntity(
+                Entity.ITEM,
+                this.getChunk((int) pos.getX() >> 4, (int) pos.getZ() >> 4, true),
+                nbt
+        );
+
+        if (itemEntity != null) {
+            itemEntity.spawnToAll();
+        }
+    }
+
     public @Nullable EntityItem dropAndGetItem(@NotNull Vector3 source, @NotNull Item item, @Nullable Vector3 motion) {
         return this.dropAndGetItem(source, item, motion, 10);
     }
@@ -3525,10 +3550,8 @@ public class Level implements Metadatable {
                             pk.subChunkCount = pair.right();
                             pk.data = pair.left();
                             player.sendChunk(x, z, pk);
+                            //player.refreshBlockEntity(chunk);
 
-                            if (!(player.getLevel().getFolderName().equals("nether") || player.getLevel().getFolderName().equals("end") )) {
-                                player.refreshBlockEntity(chunk);
-                            }
 
                         }
                     }
