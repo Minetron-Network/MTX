@@ -605,7 +605,8 @@ public class Level implements Metadatable {
     public void close() {
         if(getServer().getSettings().levelSettings().levelThread() && baseTickThread.isAlive()) {
             this.baseTickGameLoop.stop();
-        } else remove();
+            remove();
+        }
     }
 
     private void remove() {
@@ -827,6 +828,7 @@ public class Level implements Metadatable {
     }
 
     public boolean unload(boolean force) {
+
         LevelUnloadEvent ev = new LevelUnloadEvent(this);
 
         if (this == this.server.getDefaultLevel() && !force) {
@@ -1522,6 +1524,7 @@ public class Level implements Metadatable {
     }
 
     public boolean save(boolean force) {
+
         if (!this.getAutoSave() && !force) {
             return false;
         }
@@ -2461,6 +2464,29 @@ public class Level implements Metadatable {
 
     public @Nullable EntityItem dropAndGetItem(@NotNull Vector3 source, @NotNull Item item) {
         return this.dropAndGetItem(source, item, null);
+    }
+
+    public void dropItemWithoutMotion(Vector3 pos, Item item) {
+        if (item.isNull()) return;
+
+        CompoundTag nbt = Entity.getDefaultNBT(
+                        pos,
+                        Vector3.ZERO,
+                        new Random().nextFloat() * 360,
+                        0 // pitch
+                ).putShort("Health", 5)
+                .putCompound("Item", NBTIO.putItemHelper(item))
+                .putShort("PickupDelay", 10);
+
+        EntityItem itemEntity = (EntityItem) Entity.createEntity(
+                Entity.ITEM,
+                this.getChunk((int) pos.getX() >> 4, (int) pos.getZ() >> 4, true),
+                nbt
+        );
+
+        if (itemEntity != null) {
+            itemEntity.spawnToAll();
+        }
     }
 
     public @Nullable EntityItem dropAndGetItem(@NotNull Vector3 source, @NotNull Item item, @Nullable Vector3 motion) {
@@ -3524,6 +3550,7 @@ public class Level implements Metadatable {
                             pk.subChunkCount = pair.right();
                             pk.data = pair.left();
                             player.sendChunk(x, z, pk);
+                            player.refreshBlockEntity(chunk);
                         }
                     }
                     this.chunkSendQueue.remove(index);
@@ -3996,12 +4023,32 @@ public class Level implements Metadatable {
         if (this.chunkGenerationQueue.size() >= this.chunkGenerationQueueSize && !force) {
             return;
         }
-        long index = Level.chunkHash(x, z);
-        if (this.chunkGenerationQueue.putIfAbsent(index, Boolean.TRUE) == null) {
-            final IChunk chunk = this.getChunk(x, z, true);
-            this.generator.asyncGenerate(chunk, (c) -> chunkGenerationQueue.remove(c.getChunk().getIndex()));//async
+
+        long index = chunkHash(x, z);
+
+        // Prevent duplicate generation
+        if (this.chunkGenerationQueue.putIfAbsent(index, Boolean.TRUE) != null) {
+            return;
+        }
+
+        IChunk chunk = this.getChunk(x, z, true); // assumed non-blocking
+
+        try {
+            this.generator.asyncGenerate(chunk, (completedChunk) -> {
+                try {
+                    // Add post-processing if needed
+                } catch (Exception e) {
+                    log.error("Post-processing async chunk failed at ({}, {}): {}", x, z, e.getMessage(), e);
+                } finally {
+                    this.chunkGenerationQueue.remove(completedChunk.getChunk().getIndex());
+                }
+            });
+        } catch (Exception e) {
+            log.error("Async chunk generation failed at ({}, {}): {}", x, z, e.getMessage(), e);
+            this.chunkGenerationQueue.remove(index);
         }
     }
+
 
     public void syncGenerateChunk(int x, int z) {
         long index = Level.chunkHash(x, z);

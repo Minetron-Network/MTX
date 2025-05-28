@@ -502,65 +502,93 @@ public class Chunk implements IChunk {
     public Map<Long, Entity> getEntities() {
         return entities;
     }
-
     @Override
     public void doMobSpawning() {
         Level level = getProvider().getLevel();
-        if(isLoaded() && isGenerated() && isLightPopulated()) {
-            if(Utils.rand(0, 50) == 0) {
-                Entity[] spawnedEntities = level.getChunkEntities(getX(), getZ()).values().stream().filter(entity -> entity.despawnable).toArray(Entity[]::new);
-                //Spawning
-                if(Utils.rand(0, 4) == 0) {
-                    if (spawnedEntities.length < Server.getInstance().getSettings().chunkSettings().spawnLimit()) {
-                        int x = Utils.rand(0, 16);
-                        int z = Utils.rand(0, 16);
-                        DimensionData data = getDimensionData();
-                        SpawnRule[] spawnRules = Registries.ENTITY.getSpawnRules().toArray(new SpawnRule[0]);
-                        var players = level.getPlayers().values().stream().map(player -> new Vector2(player.x, player.z)).toList();
-                        Vector2 planeVec = new Vector2(x + 16 * getX(), z + 16 * getZ());
-                        if(players.stream().noneMatch(player -> {
-                            double distance = player.distance(planeVec);
-                            return distance < 54 && distance > 24;
-                        })) return;
-                        for (int y = data.getMaxHeight(); y > data.getMinHeight(); y--) {
-                            Vector3 lookVec = new Vector3(x + 16 * getX(), y, z + 16 * getZ());
-                            Block block = level.getBlock(lookVec, true);
-                            SpawnRule[] rules = Arrays.stream(spawnRules).filter(spawnRule -> spawnRule.evaluate(block)).toArray(SpawnRule[]::new);
-                            if(rules.length > 0) {
-                                SpawnRule spawnRule = rules[Utils.rand(0, rules.length-1)];
-                                int herd = Utils.rand(spawnRule.getHerdMin(), spawnRule.getHerdMax());
-                                for(int i = 0; i < herd; i++) {
-                                    int difference = spawnRule.getHerdMax()-spawnRule.getHerdMin();
-                                    if(!EntityFlyable.class.isAssignableFrom(Registries.ENTITY.getEntityClass(spawnRule.getEntityId()))) {
-                                        level.getSafeSpawn(lookVec, difference, true).add(0.5, 0, 0.5);
-                                    }
-                                    Entity entity = Registries.ENTITY.provideEntity(spawnRule.getEntityId(), this, Entity.getDefaultNBT(lookVec));
-                                    if (entity == null) continue;
-                                    entity.despawnable = true;
-                                    entity.spawnToAll();
-                                }
-                            }
-                        }
-                    }
-                }
-                //Despawning
-                if(spawnedEntities.length != 0) {
-                    int rand = Utils.rand(0, spawnedEntities.length-1);
-                    try {
-                        Entity randomEntity = spawnedEntities[rand];
-                        if(level.getPlayers().values().stream().noneMatch(player -> player.distance(randomEntity) <= 54)) {
-                            if(randomEntity.getAge() > 6000) {
-                                randomEntity.close();
-                            }
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
+        if (!isLoaded() || !isGenerated() || !isLightPopulated()) return;
+
+        if (Utils.rand(0, 50) != 0) return;
+
+        Collection<Entity> chunkEntities = level.getChunkEntities(getX(), getZ()).values();
+        Entity[] spawnedEntities = chunkEntities.stream()
+                .filter(entity -> entity.despawnable)
+                .toArray(Entity[]::new);
+
+        if (Utils.rand(0, 4) == 0 && spawnedEntities.length < Server.getInstance().getSettings().chunkSettings().spawnLimit()) {
+            handleMobSpawning(level, spawnedEntities.length);
+        }
+
+        if (spawnedEntities.length > 0) {
+            handleMobDespawning(level, spawnedEntities);
+        }
+    }
+
+    private void handleMobSpawning(Level level, int currentEntityCount) {
+        int x = Utils.rand(0, 16);
+        int z = Utils.rand(0, 16);
+        DimensionData data = getDimensionData();
+
+        List<Vector2> playerPositions = level.getPlayers().values().stream()
+                .map(player -> new Vector2(player.x, player.z))
+                .toList();
+
+        Vector2 planeVec = new Vector2(x + 16 * getX(), z + 16 * getZ());
+
+        if (playerPositions.stream().noneMatch(player -> {
+            double distance = player.distance(planeVec);
+            return distance < 54 && distance > 24;
+        })) return;
+
+        SpawnRule[] spawnRules = Registries.ENTITY.getSpawnRules().toArray(new SpawnRule[0]);
+
+        for (int y = data.getMaxHeight(); y > data.getMinHeight(); y--) {
+            Vector3 lookVec = new Vector3(x + 16 * getX(), y, z + 16 * getZ());
+            Block block = level.getBlock(lookVec, true);
+
+            SpawnRule[] validRules = Arrays.stream(spawnRules)
+                    .filter(spawnRule -> spawnRule.evaluate(block))
+                    .toArray(SpawnRule[]::new);
+
+            if (validRules.length > 0) {
+                spawnMobGroup(level, lookVec, validRules);
+                break;
             }
         }
     }
 
+    private void spawnMobGroup(Level level, Vector3 lookVec, SpawnRule[] validRules) {
+        SpawnRule spawnRule = validRules[Utils.rand(0, validRules.length - 1)];
+        int herdSize = Utils.rand(spawnRule.getHerdMin(), spawnRule.getHerdMax());
+        Class<?> entityClass = Registries.ENTITY.getEntityClass(spawnRule.getEntityId());
+        boolean isFlyable = EntityFlyable.class.isAssignableFrom(entityClass);
+
+        for (int i = 0; i < herdSize; i++) {
+            Vector3 spawnPos = isFlyable ? lookVec :
+                    level.getSafeSpawn(lookVec, spawnRule.getHerdMax() - spawnRule.getHerdMin(), true)
+                            .add(0.5, 0, 0.5);
+
+            Entity entity = Registries.ENTITY.provideEntity(spawnRule.getEntityId(), this,
+                    Entity.getDefaultNBT(spawnPos));
+            if (entity == null) continue;
+
+            entity.despawnable = true;
+            entity.spawnToAll();
+        }
+    }
+
+    private void handleMobDespawning(Level level, Entity[] spawnedEntities) {
+        Entity randomEntity = spawnedEntities[Utils.rand(0, spawnedEntities.length - 1)];
+        try {
+            boolean shouldDespawn = level.getPlayers().values().stream()
+                    .noneMatch(player -> player.distance(randomEntity) <= 54);
+
+            if (shouldDespawn && randomEntity.getAge() > 6000) {
+                randomEntity.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     @Override
     public Map<Long, BlockEntity> getBlockEntities() {
         return tiles;

@@ -256,6 +256,7 @@ public class EntityItem extends Entity {
                     respawnToAll(); //HACK: Client also despawns Item after 5 mins, so we have to respawn for client
                 } else {
                     this.kill();
+                    this.close();
                     hasUpdate = true;
                 }
             }
@@ -271,25 +272,26 @@ public class EntityItem extends Entity {
         }
         super.setOnFire(seconds);
     }
-
     @Override
     public void saveNBT() {
-        super.saveNBT();
-        if (this.item != null) { // Yes, a item can be null... I don't know what causes this, but it can happen.
-            this.namedTag.putCompound("Item", NBTIO.putItemHelper(this.item, -1));
-            this.namedTag.putShort("Health", (int) this.getHealth());
-            this.namedTag.putShort("Age", this.age);
-            this.namedTag.putShort("PickupDelay", this.pickupDelay);
-            if (this.owner != null) {
-                this.namedTag.putString("Owner", this.owner);
+        if (this.item == null) {
+            if (!this.closed) {
+                this.close();
             }
-
-            if (this.thrower != null) {
-                this.namedTag.putString("Thrower", this.thrower);
-            }
-
-            this.namedTag.putBoolean("Mergeable", this.mergeItems);
+            return;
         }
+        super.saveNBT();
+        this.namedTag.putCompound("Item", NBTIO.putItemHelper(this.item, -1));
+        this.namedTag.putShort("Health", (int) this.getHealth());
+        this.namedTag.putShort("Age", this.age);
+        this.namedTag.putShort("PickupDelay", this.pickupDelay);
+        if (this.owner != null) {
+            this.namedTag.putString("Owner", this.owner);
+        }
+        if (this.thrower != null) {
+            this.namedTag.putString("Thrower", this.thrower);
+        }
+        this.namedTag.putBoolean("Mergeable", this.mergeItems);
     }
 
     @Override

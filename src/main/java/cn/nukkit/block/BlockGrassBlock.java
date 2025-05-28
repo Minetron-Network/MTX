@@ -74,15 +74,11 @@ public class BlockGrassBlock extends BlockDirt {
         return false;
     }
 
+
     @Override
     public int onUpdate(int type) {
         if (type == Level.BLOCK_UPDATE_RANDOM) {
-            // Grass dies and changes to dirt after a random time (when a random tick lands on the block)
-            // if directly covered by any opaque block.
-            // Transparent blocks can kill grass in a similar manner,
-            // but only if they cause the light level above the grass block to be four or below (like water does),
-            // and the surrounding area is not otherwise sufficiently lit up.
-            if (up().getLightFilter() > 1) {
+            if (!this.up().canBeReplaced()) {
                 BlockFadeEvent ev = new BlockFadeEvent(this, Block.get(BlockID.DIRT));
                 Server.getInstance().getPluginManager().callEvent(ev);
                 if (!ev.isCancelled()) {
@@ -91,32 +87,21 @@ public class BlockGrassBlock extends BlockDirt {
                 }
             }
 
-            // Grass can spread to nearby dirt blocks.
-            // Grass spreading without player intervention depends heavily on the time of day.
-            // For a dirt block to accept grass from a nearby grass block, the following requirements must be met:
+            ThreadLocalRandom random = ThreadLocalRandom.current();
+            int x = random.nextInt((int) this.x - 1, (int) this.x + 2);
+            int y = random.nextInt((int) this.y - 3, (int) this.y + 2);
+            int z = random.nextInt((int) this.z - 1, (int) this.z + 2);
+            Block block = this.getLevel().getBlock(new Vector3(x, y, z));
 
-            // The source block must have a light level of 9 or brighter directly above it.
-            
-                // The dirt block receiving grass must be within a 3×5×3 range of the source block
-                // where the source block is in the center of the second topmost layer of that range.
-                ThreadLocalRandom random = ThreadLocalRandom.current();
-                int x = random.nextInt((int) this.x - 1, (int) this.x + 1 + 1);
-                int y = random.nextInt((int) this.y - 3, (int) this.y + 1 + 1);
-                int z = random.nextInt((int) this.z - 1, (int) this.z + 1 + 1);
-                Block block = this.getLevel().getBlock(new Vector3(x, y, z));
-                if (block.getId().equals(Block.DIRT)
-                        // The dirt block must have a light level of at least 4 above it.
-                        && getLevel().getFullLight(block.up()) >= 4
-
-                        // Any block directly above the dirt block must not reduce light by 2 levels or more.
-                        && block.up().getLightFilter() < 2) {
+            if (block.getId().equals(Block.DIRT)) {
+                if (block.up().canBeReplaced()) {
                     BlockSpreadEvent ev = new BlockSpreadEvent(block, this, Block.get(BlockID.GRASS_BLOCK));
                     Server.getInstance().getPluginManager().callEvent(ev);
                     if (!ev.isCancelled()) {
                         this.getLevel().setBlock(block, ev.getNewState());
                     }
                 }
-
+            }
             return type;
         }
         return 0;

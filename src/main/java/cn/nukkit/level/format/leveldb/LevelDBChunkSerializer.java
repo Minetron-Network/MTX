@@ -9,6 +9,7 @@ import cn.nukkit.block.BlockState;
 import cn.nukkit.block.BlockUnknown;
 import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.item.EntityItem;
 import cn.nukkit.level.DimensionData;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
@@ -391,6 +392,12 @@ public class LevelDBChunkSerializer {
             } else {
                 for (Entity e : entities) {
                     if (!(e instanceof Player) && !e.closed && e.canBeSavedWithChunk()) {
+
+                        if (e instanceof EntityItem){
+                            var item = ((EntityItem) e).getItem();
+                            if (item == null) continue;
+                        }
+
                         e.saveNBT();
                         NBTIO.write(e.namedTag, bufStream, ByteOrder.LITTLE_ENDIAN);
                     }
@@ -403,4 +410,5 @@ public class LevelDBChunkSerializer {
             entityBuffer.release();
         }
     }
+
 }

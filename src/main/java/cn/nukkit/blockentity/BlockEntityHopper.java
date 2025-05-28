@@ -38,6 +38,8 @@ import java.util.HashSet;
  * @author CreeperFace
  * @since 8.5.2017
  */
+
+//TODO: decrease hopper cooldown
 public class BlockEntityHopper extends BlockEntitySpawnable implements BlockEntityInventoryHolder, BlockHopper.IHopper {
 
     protected HopperInventory inventory;
@@ -74,7 +76,7 @@ public class BlockEntityHopper extends BlockEntitySpawnable implements BlockEnti
         if (this.namedTag.contains("TransferCooldown")) {
             this.transferCooldown = this.namedTag.getInt("TransferCooldown");
         } else {
-            this.transferCooldown = 4;
+            this.transferCooldown = 8;
         }
 
         this.inventory = new HopperInventory(this);
@@ -106,7 +108,7 @@ public class BlockEntityHopper extends BlockEntitySpawnable implements BlockEnti
      * @return How much ticks does it take for the hopper to transfer an item
      */
     public int getCooldownTick() {
-        return 4;
+        return 8;
     }
 
     protected boolean checkBlockStateValid(@NotNull BlockState levelBlockState) {

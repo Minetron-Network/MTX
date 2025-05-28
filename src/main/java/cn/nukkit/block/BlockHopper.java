@@ -301,7 +301,6 @@ public class BlockHopper extends BlockTransparent implements RedstoneComponent, 
                     item.setCount(items[0].getCount());
                 }
             }
-
             return pickedUpItem;
         }
     }
