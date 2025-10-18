@@ -285,7 +285,7 @@ public class Server {
 
         while(convertLegacyConfiguration());
 
-        File config = new File(this.dataPath + "pnx.yml");
+        File config = new File(this.dataPath + "mtx.yml");
         String chooseLanguage = null;
         if (!config.exists()) {
             log.info("{}Welcome! Please choose a language first!", TextFormat.GREEN);
@@ -329,7 +329,7 @@ public class Server {
         this.baseLang = new BaseLang(chooseLanguage);
         this.baseLangCode = mapInternalLang(chooseLanguage);
         this.settings = ConfigManager.create(ServerSettings.class, it -> {
-            log.info("Loading {}...", TextFormat.GREEN + "pnx.yml" + TextFormat.RESET);
+            log.info("Loading {}...", TextFormat.GREEN + "mtx.yml" + TextFormat.RESET);
             it.withConfigurer(new YamlSnakeYamlConfigurer());
             it.withBindFile(config);
             it.withRemoveOrphans(true);

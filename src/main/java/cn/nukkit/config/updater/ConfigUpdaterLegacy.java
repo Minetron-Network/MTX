@@ -45,7 +45,7 @@ public class ConfigUpdaterLegacy implements ConfigUpdater.Updater {
             Field settings = server.getClass().getDeclaredField("settings");
             settings.setAccessible(true);
             settings.set(server, ConfigManager.create(ServerSettings.class, it -> {
-                File config = new File(server.getDataPath() + "pnx.yml");
+                File config = new File(server.getDataPath() + "mtx.yml");
                 it.withConfigurer(new YamlSnakeYamlConfigurer());
                 it.withBindFile(config);
                 it.withRemoveOrphans(true);

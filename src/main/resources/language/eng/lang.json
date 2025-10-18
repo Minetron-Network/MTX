@@ -8,7 +8,7 @@
   "pnx.settings.network": "Network settings for PowerNukkitX",
   "pnx.settings.debug": "Debug configuration for PowerNukkitX",
   "pnx.settings.performance": "Performance settings for PowerNukkitX",
-  "pnx.settings.version": "Version of your pnx.yml. DO NOT MODIFY!",
+  "pnx.settings.version": "Version of your mtx.yml. DO NOT MODIFY!",
   "pnx.settings.base.ip": "Server's IP address",
   "pnx.settings.base.port": "Server's port",
   "pnx.settings.base.maxplayers": "Maximum number of players",

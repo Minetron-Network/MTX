@@ -23,9 +23,9 @@ plugins {
     id("com.gorylenko.gradle-git-properties") version "2.4.1"
 }
 
-group = "org.powernukkitx"
-version = "2.0.0-SNAPSHOT"
-description = "PNX Server"
+group = "net.minetron"
+version = "0.1"
+description = "MTX Server"
 java.sourceCompatibility = JavaVersion.VERSION_21
 java.targetCompatibility = JavaVersion.VERSION_21
 
@@ -136,7 +136,7 @@ tasks.build {
 
 tasks.clean {
     group = "alpha build"
-    delete("pnx.yml", "terra", "services")
+    delete("mtx.yml", "terra", "services")
 }
 
 tasks.compileJava {
@@ -202,62 +202,6 @@ tasks.register<Copy>("copyDependencies") {
     into(layout.buildDirectory.dir("libs"))
 }
 
-tasks.javadoc {
-    options.encoding = StandardCharsets.UTF_8.name()
-    includes.add("**/**.java")
-    val javadocOptions = options as CoreJavadocOptions
-    javadocOptions.addStringOption(
-        "source",
-        java.sourceCompatibility.toString()
-    )
-    // Suppress some meaningless warnings
-    javadocOptions.addStringOption("Xdoclint:none", "-quiet")
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            from(components["java"])
-            artifactId = "server"
-            pom {
-                url.set("https://github.com/PowerNukkitX/PowerNukkitX")
-                licenses {
-                    license {
-                        name.set("MIT License")
-                        url.set("https://opensource.org/licenses/MIT")
-                    }
-                }
-                scm {
-                    connection.set("scm:git:git://github.com/PowerNukkitX/PowerNukkitX.git")
-                    developerConnection.set("scm:git:ssh://github.com/PowerNukkitX/PowerNukkitX.git")
-                    url.set("https://github.com/PowerNukkitX/PowerNukkitX")
-                }
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            name = "pnx"
-            url = uri("https://repo.powernukkitx.org/releases")
-            credentials {
-                username = providers.gradleProperty("pnxUsername")
-                    .orElse(providers.environmentVariable("PNX_REPO_USERNAME"))
-                    .orNull
-                password = providers.gradleProperty("pnxPassword")
-                    .orElse(providers.environmentVariable("PNX_REPO_PASSWORD"))
-                    .orNull
-            }
-        }
-    }
-}
-
-
-
 tasks.withType<JavaCompile> {
-    options.encoding = "UTF-8"
-}
-
-tasks.withType<Javadoc> {
     options.encoding = "UTF-8"
 }
