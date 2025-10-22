@@ -1,20 +1,7 @@
-import java.nio.charset.StandardCharsets
-// Explicit Gradle API imports to fix Kotlin DSL unresolved references
-import org.gradle.external.javadoc.CoreJavadocOptions
-import org.gradle.api.tasks.AbstractCopyTask
-import org.gradle.api.tasks.bundling.AbstractArchiveTask
-import org.gradle.api.tasks.compile.JavaCompile
-import org.gradle.api.tasks.javadoc.Javadoc
-import org.gradle.api.file.DuplicatesStrategy
-import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.Copy
-import org.gradle.api.publish.maven.MavenPublication
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.gradle.testing.jacoco.tasks.JacocoReport
 
 plugins {
     `java-library`
-    `maven-publish`
     java
     idea
     jacoco
@@ -162,7 +149,7 @@ tasks.named<JacocoReport>("jacocoTestReport") {
     dependsOn("test") // tests are required to run before generating the report
 }
 
-tasks.withType<AbstractCopyTask>() {
+tasks.withType<AbstractCopyTask> {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
